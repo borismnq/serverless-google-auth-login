@@ -16,8 +16,7 @@ functions:
       - httpApi: '*'
     environment:
       OAUTH_CLIENT_ID: ${env.OAUTH_CLIENT_ID}
-      OAUTH_CLIENT_SECRET: ${{env.OAUTH_CLIENT_SECRET}}
-      OAUTH_CLIENT_SECRET2: ${file(env.yml):OAUTH_CLIENT_SECRET2}
+      OAUTH_CLIENT_SECRET: ${env.OAUTH_CLIENT_SECRET}
       LAMBDA_URL: ${env.LAMBDA_URL}
 plugins:
   - serverless-wsgi
