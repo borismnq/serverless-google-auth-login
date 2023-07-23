@@ -65,16 +65,12 @@ def web_applicationt_client_module(
 
 
 def google_repository_module(
-    lambda_host: str = lambda_host_module(),
     google_discovery_url: str = google_discovery_url_module(),
-    web_applicationt_client: WebApplicationClient = web_applicationt_client_module(),
     oauth_client_id: str = google_client_id_module(),
     oauth_client_secret: str = google_client_secret_module(),
 ) -> GoogleRepository:
     return GoogleRepositoryImp(
-        lambda_host,
         google_discovery_url,
-        web_applicationt_client,
         oauth_client_id,
         oauth_client_secret,
     )
@@ -82,11 +78,15 @@ def google_repository_module(
 
 def get_perform_google_login_use_case_module(
     google_repository: GoogleRepository = google_repository_module(),
+    lambda_host: str = lambda_host_module(),
+    web_applicationt_client: WebApplicationClient = web_applicationt_client_module(),
 ) -> PerformGoogleLogin:
-    return PerformGoogleLogin(google_repository)
+    return PerformGoogleLogin(google_repository, lambda_host, web_applicationt_client)
 
 
 def get_handle_login_callback_use_case_module(
     google_repository: GoogleRepository = google_repository_module(),
+    lambda_host: str = lambda_host_module(),
+    web_applicationt_client: WebApplicationClient = web_applicationt_client_module(),
 ) -> HandleLoginCallback:
-    return HandleLoginCallback(google_repository)
+    return HandleLoginCallback(google_repository, lambda_host, web_applicationt_client)

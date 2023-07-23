@@ -1,5 +1,6 @@
 import logging
 import os
+from dataclasses import asdict
 from typing import Final
 from typing import Optional
 
@@ -56,7 +57,7 @@ def login(
         request_uri = perform_google_login.run_use_case()
         return redirect(request_uri)
     except Exception as exception:
-        logging.error("Fatal error in login callback", exc_info=True)
+        logging.error("Fatal error in login", exc_info=True)
         response = ResponseBody.model_construct(
             status_code=FAIL_STATUS_CODE, body=EMPTY_BODY, error=str(exception)
         ).model_dump(by_alias=True)
@@ -70,15 +71,19 @@ def callback(
 ):
     status_code = FAIL_STATUS_CODE
     body = EMPTY_BODY
-    error = EMPTY_ERROR
+    error = None
     try:
         code = request.args.get(CODE_ARG)
         request_url = request.url
-        login_data_dict = handle_login_callback.run_use_case(
+        login_data = handle_login_callback.run_use_case(
             HandleLoginCallbackParams(request_url, code)
         )
         status_code = SUCCESS_STATUS_CODE
-        body = login_data_dict
+        body = asdict(login_data)
+        login_error = login_data.error
+        if login_error:
+            error = login_error.message
+            status_code = login_error.code
     except Exception as exception:
         logging.error("Fatal error in login callback", exc_info=True)
         error = str(exception)

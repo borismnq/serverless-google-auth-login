@@ -4,9 +4,13 @@ from abc import abstractmethod
 
 class GoogleRepository(ABC):
     @abstractmethod
-    def perform_google_login(self) -> str:
+    def get_google_provider_cfg(self) -> dict:
         pass
 
     @abstractmethod
-    def handle_login_callback(self, request_url: str, code: str) -> dict:
+    def get_tokens(self, url: str, headers: dict, body: str) -> dict:
+        pass
+
+    @abstractmethod
+    def get_user_info(self, uri: str, headers: dict, body: str) -> dict:
         pass
