@@ -69,4 +69,4 @@ OAUTH_CLIENT_ID=[YOUROAUTHCLIENTID]
 OAUTH_CLIENT_SECRET=[YOUROAUTHCLIENTSECRET]
 ```
 
-***Annotation: Remove CORS related code before deploy on production.***
+***Annotation: Check and uncomment #CORS related code if you want to call this API from other origin.***

@@ -38,8 +38,8 @@ app = Flask(__name__)
 app.secret_key = providers.get_app_secret_key_module() or os.urandom(24)
 
 # CORS
-app.config["CORS_HEADERS"] = "Content-Type"
-cors = CORS(app)
+# app.config["CORS_HEADERS"] = "Content-Type"
+# cors = CORS(app)
 
 
 class ResponseBody(BaseModel):
@@ -49,7 +49,7 @@ class ResponseBody(BaseModel):
 
 
 @app.route("/login")
-@cross_origin()  # CORS
+# @cross_origin()  # CORS
 async def login(
     perform_google_login: PerformGoogleLogin = providers.get_perform_google_login_use_case_module(),
 ):
@@ -65,7 +65,7 @@ async def login(
 
 
 @app.route("/login/callback")
-@cross_origin()  # CORS
+# @cross_origin()  # CORS
 async def callback(
     handle_login_callback: HandleLoginCallback = providers.get_handle_login_callback_use_case_module(),
 ):
