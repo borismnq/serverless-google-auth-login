@@ -1,5 +1,8 @@
 from typing import Final
+from unittest.mock import AsyncMock
 from unittest.mock import Mock
+
+import pytest
 
 from bp.perform_google_login import PerformGoogleLogin
 
@@ -62,10 +65,10 @@ USER_SCOPE: Final = ["openid", "email", "profile"]
 
 class ShouldPerformGoogleLoginSuccessfully:
     def given(self):
-        self.google_repository = Mock()
+        self.google_repository = AsyncMock()
         self.web_applicationt_client = Mock()
         self.lambda_host = LOCAL_SSL_URL
-        self.google_repository.get_google_provider_cfg = Mock(
+        self.google_repository.get_google_provider_cfg = AsyncMock(
             return_value=PROVIDER_CONFIG
         )
         self.web_applicationt_client.prepare_request_uri = Mock(
@@ -75,8 +78,8 @@ class ShouldPerformGoogleLoginSuccessfully:
             self.google_repository, self.lambda_host, self.web_applicationt_client
         )
 
-    def when(self):
-        self.response = self.perform_google_login_use_case.run_use_case()
+    async def when(self):
+        self.response = await self.perform_google_login_use_case.run_use_case()
 
     def then(self):
         assert self.response
@@ -88,8 +91,9 @@ class ShouldPerformGoogleLoginSuccessfully:
         )
 
 
-def test_perform_google_login():
+@pytest.mark.asyncio
+async def test_perform_google_login():
     test = ShouldPerformGoogleLoginSuccessfully()
     test.given()
-    test.when()
+    await test.when()
     test.then()

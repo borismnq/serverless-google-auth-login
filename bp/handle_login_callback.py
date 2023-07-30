@@ -53,9 +53,11 @@ class HandleLoginCallback(UseCase):
         self.lambda_host = lambda_host
         self.client = web_applicationt_client
 
-    def run_use_case(self, params: HandleLoginCallbackParams) -> LoginDataResponse:
+    async def run_use_case(
+        self, params: HandleLoginCallbackParams
+    ) -> LoginDataResponse:
         error = None
-        google_provider_cfg = self.google_repository.get_google_provider_cfg()
+        google_provider_cfg = await self.google_repository.get_google_provider_cfg()
         token_url, headers, body = self.client.prepare_token_request(
             google_provider_cfg[TOKEN_ENDPOINT_KEY],
             authorization_response=(params.request_url).replace(
@@ -64,12 +66,12 @@ class HandleLoginCallback(UseCase):
             redirect_url=self.lambda_host + LOGIN_CALLBACK_ENDPOINT,
             code=params.code,
         )
-        tokens = self.google_repository.get_tokens(token_url, headers, body)
+        tokens = await self.google_repository.get_tokens(token_url, headers, body)
         parsed_tokens = self.client.parse_request_body_response(json.dumps(tokens))
         uri, headers, body = self.client.add_token(
             google_provider_cfg[USER_INFO_ENDPOINT_KEY]
         )
-        user_info = self.google_repository.get_user_info(uri, headers, body)
+        user_info = await self.google_repository.get_user_info(uri, headers, body)
         if not user_info.get(EMAIL_VERIFIED_KEY):
             error = Error(UNAVAILABLE_USER_MSG, UNAVAILABLE_CODE)
 

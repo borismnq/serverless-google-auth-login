@@ -21,8 +21,8 @@ class PerformGoogleLogin(UseCase):
         self.lambda_host = lambda_host
         self.client = web_applicationt_client
 
-    def run_use_case(self) -> str:
-        google_provider_cfg = self.google_repository.get_google_provider_cfg()
+    async def run_use_case(self) -> str:
+        google_provider_cfg = await self.google_repository.get_google_provider_cfg()
         request_uri = self.client.prepare_request_uri(
             google_provider_cfg[AUTHORIZATION_ENDPOINT_KEY],
             redirect_uri=self.lambda_host + LOGIN_CALLBACK_ENDPOINT,

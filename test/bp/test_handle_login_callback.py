@@ -1,6 +1,9 @@
 import json
 from typing import Final
+from unittest.mock import AsyncMock
 from unittest.mock import Mock
+
+import pytest
 
 from bp.handle_login_callback import HandleLoginCallback
 from bp.handle_login_callback import HandleLoginCallbackParams
@@ -84,14 +87,14 @@ USER_INFO_ENDPOINT_KEY: Final = "userinfo_endpoint"
 
 class ShouldHandleLoginCallbackSuccessfully:
     def given(self):
-        self.google_repository = Mock()
+        self.google_repository = AsyncMock()
         self.web_applicationt_client = Mock()
         self.lambda_host = LOCAL_SSL_URL
-        self.google_repository.get_google_provider_cfg = Mock(
+        self.google_repository.get_google_provider_cfg = AsyncMock(
             return_value=PROVIDER_CONFIG
         )
-        self.google_repository.get_tokens = Mock(return_value=TOKENS)
-        self.google_repository.get_user_info = Mock(return_value=USER_INFO)
+        self.google_repository.get_tokens = AsyncMock(return_value=TOKENS)
+        self.google_repository.get_user_info = AsyncMock(return_value=USER_INFO)
         self.web_applicationt_client.prepare_token_request = Mock(
             return_value=PREPARE_TOKEN_REQUEST_RESPONSE
         )
@@ -103,8 +106,8 @@ class ShouldHandleLoginCallbackSuccessfully:
             self.google_repository, self.lambda_host, self.web_applicationt_client
         )
 
-    def when(self):
-        self.response = self.handle_login_callback_use_case.run_use_case(
+    async def when(self):
+        self.response = await self.handle_login_callback_use_case.run_use_case(
             HandleLoginCallbackParams(request_url=REQUEST_URI, code=CODE)
         )
 
@@ -135,8 +138,9 @@ class ShouldHandleLoginCallbackSuccessfully:
         assert "user" and "tokens" in self.response.__dict__
 
 
-def test_handle_login_callback():
+@pytest.mark.asyncio
+async def test_handle_login_callback():
     test = ShouldHandleLoginCallbackSuccessfully()
     test.given()
-    test.when()
+    await test.when()
     test.then()

@@ -2,6 +2,7 @@ import logging
 from typing import Final
 from typing import Optional
 
+import httpx
 import requests
 
 from bp.repositories import GoogleRepository
@@ -35,13 +36,16 @@ class GoogleRepositoryImp(GoogleRepository):
         self.oauth_client_id = oauth_client_id
         self.oauth_client_secret = oauth_client_secret
 
-    def get_google_provider_cfg(self) -> dict:
+    async def get_google_provider_cfg(self) -> dict:
         response: Optional[requests.Response] = None
         provider_config = {}
         try:
-            response = requests.get(self.google_discovery_url)
-            provider_config = response.json()
-        except Exception as exc:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    url=self.google_discovery_url,
+                )
+                provider_config = response.json()
+        except httpx.HTTPError as exc:
             logging.exception(exc)
             try:
                 error = response.json()
@@ -55,18 +59,19 @@ class GoogleRepositoryImp(GoogleRepository):
             )
         return provider_config
 
-    def get_tokens(self, url: str, headers: dict, body: str) -> dict:
+    async def get_tokens(self, url: str, headers: dict, body: str) -> dict:
         response: Optional[requests.Response] = None
         tokens = {}
         try:
-            response = requests.post(
-                url,
-                headers=headers,
-                data=body,
-                auth=(self.oauth_client_id, self.oauth_client_secret),
-            )
-            tokens = response.json()
-        except Exception as exception:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    url,
+                    headers=headers,
+                    data=body,
+                    auth=(self.oauth_client_id, self.oauth_client_secret),
+                )
+                tokens = response.json()
+        except httpx.HTTPError as exception:
             logging.exception(exception)
             try:
                 error = response.json()
@@ -80,13 +85,14 @@ class GoogleRepositoryImp(GoogleRepository):
             )
         return tokens
 
-    def get_user_info(self, uri: str, headers: dict, body: str) -> dict:
+    async def get_user_info(self, uri: str, headers: dict, body: str) -> dict:
         response: Optional[requests.Response] = None
         user_info = {}
         try:
-            response = requests.get(uri, headers=headers, data=body)
-            user_info = response.json()
-        except Exception as exception:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(uri, headers=headers, data=body)
+                user_info = response.json()
+        except httpx.HTTPError as exception:
             logging.exception(exception)
             try:
                 error = response.json()

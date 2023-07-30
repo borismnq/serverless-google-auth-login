@@ -50,11 +50,11 @@ class ResponseBody(BaseModel):
 
 @app.route("/login")
 @cross_origin()  # CORS
-def login(
+async def login(
     perform_google_login: PerformGoogleLogin = providers.get_perform_google_login_use_case_module(),
 ):
     try:
-        request_uri = perform_google_login.run_use_case()
+        request_uri = await perform_google_login.run_use_case()
         return redirect(request_uri)
     except Exception as exception:
         logging.error("Fatal error in login", exc_info=True)
@@ -66,7 +66,7 @@ def login(
 
 @app.route("/login/callback")
 @cross_origin()  # CORS
-def callback(
+async def callback(
     handle_login_callback: HandleLoginCallback = providers.get_handle_login_callback_use_case_module(),
 ):
     status_code = FAIL_STATUS_CODE
@@ -75,7 +75,7 @@ def callback(
     try:
         code = request.args.get(CODE_ARG)
         request_url = request.url
-        login_data = handle_login_callback.run_use_case(
+        login_data = await handle_login_callback.run_use_case(
             HandleLoginCallbackParams(request_url, code)
         )
         status_code = SUCCESS_STATUS_CODE
